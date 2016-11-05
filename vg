@@ -1,0 +1,5 @@
+#!/bin/sh
+
+valgrind -v --trace-children=yes --track-fds=yes --demangle=yes --read-var-info=yes \
+	--leak-check=full --track-origins=yes \
+	./emd --debug --start /export/sound --notify '/usr/local/bin/emd_notify %A %a %s %t %f'
