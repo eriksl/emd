@@ -1,0 +1,20 @@
+AOUT		= emd
+OBJS		= emd.o mp3meta.o emd_state.o program.o http_server.o http_page.o syslog.o mp3reader.o
+PROGRAM		= emd
+
+CXX			= g++
+CXXFLAGS	= -O3
+LDFLAGS		=
+STRIP		= strip
+
+%.o:		%.cpp
+			$(CXX) -c -Wall $(CXXFLAGS) -DMHD_mode_multithread $< -o $@
+
+all:		$(AOUT)
+
+$(AOUT):	$(OBJS)
+			$(CXX) $(LDFLAGS) $(OBJS) -lmicrohttpd -lid3tag -lpthread -o $@
+			$(STRIP) $@
+
+clean:
+			rm -f $(OBJS) $(AOUT)
