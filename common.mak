@@ -127,7 +127,7 @@ rpm:
 #
 			@echo "TAR $(RPMTARBALL)"
 			@-rm -f $(RPMTARBALL) 2> /dev/null
-			tar cf $(RPMTARBALL) -C .. --exclude rpm --exclude .git $(PROGRAM)
+			tar cf $(RPMTARBALL) -C .. --exclude rpm --exclude .git --exclude .hg $(PROGRAM)
 #
 			@echo "CREATE RPM $(RPMSPECOUT)"
 			@rpmbuild -bb $(RPMSPECOUT)
