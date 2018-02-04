@@ -24,7 +24,7 @@ class HttpServer
 
 		enum
 		{
-			streaming_buffer_size = 256 * 1024
+			streaming_buffer_size = 128
 		};
 
 		typedef map<string, string> string_string_map;
