@@ -1,5 +1,5 @@
-CWARNINGS		= -Wall -Wextra -Wshadow -Wundef -Wformat=2 -Winit-self -Wunused -Werror -Wpointer-arith -Wcast-qual -Wmultichar
-CPPWARNINGS		= $(CWARNINGS)
+CWARNINGS		?= -Wall -Wextra -Wshadow -Wundef -Wformat=2 -Winit-self -Wunused -Werror -Wpointer-arith -Wcast-qual -Wmultichar
+CPPWARNINGS		?= $(CWARNINGS)
 
 CFLAGS			+= $(CWARNINGS)
 CPPFLAGS		+= $(CPPWARNINGS)

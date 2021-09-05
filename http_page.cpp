@@ -13,7 +13,7 @@ using boost::lexical_cast;
 #include "http_server.h"
 #include "syslog.h"
 
-int HttpServer::page_dispatcher_root(MHD_Connection * connection, const string & method, ConnectionData * con_cls) const
+MHD_Result HttpServer::page_dispatcher_root(MHD_Connection * connection, const string & method, ConnectionData * con_cls) const
 {
 	string	data;
 	string	playing_state		= emd_state.get_playing_state();
@@ -53,12 +53,11 @@ int HttpServer::page_dispatcher_root(MHD_Connection * connection, const string &
 	return(send_html(connection, "/", MHD_HTTP_OK, data, 30));
 }
 
-int HttpServer::page_dispatcher_debug(MHD_Connection * connection, const string & method, ConnectionData * con_cls) const
+MHD_Result HttpServer::page_dispatcher_debug(MHD_Connection * connection, const string & method, ConnectionData * con_cls) const
 {
 	string data, text;
 	string id = "";
 
-	HttpServer::KeyValues	responses;
 	HttpServer::KeyValues	headers;
 	HttpServer::KeyValues	cookies;
 	HttpServer::KeyValues	postdata;
@@ -68,7 +67,6 @@ int HttpServer::page_dispatcher_debug(MHD_Connection * connection, const string 
 	if(method != "GET" && method != "POST")
 		return(http_error(connection, MHD_HTTP_METHOD_NOT_ALLOWED, "Method not allowed"));
 
-	responses	= get_http_values(connection, MHD_RESPONSE_HEADER_KIND);
 	headers		= get_http_values(connection, MHD_HEADER_KIND);
 	cookies		= get_http_values(connection, MHD_COOKIE_KIND);
 	postdata	= get_http_values(connection, MHD_POSTDATA_KIND);
@@ -76,8 +74,6 @@ int HttpServer::page_dispatcher_debug(MHD_Connection * connection, const string 
 	footer		= get_http_values(connection, MHD_FOOTER_KIND);
 	
 	data += string("<p>method: ") + method + "</p>";
-	data +=	"<p>responses";
-	data += responses.dump(true);
 	data +=	"</p>\n<p>headers";
 	data += headers.dump(true);
 	data +=	"</p>\n<p>cookies";
@@ -95,7 +91,7 @@ int HttpServer::page_dispatcher_debug(MHD_Connection * connection, const string 
 	return(send_html(connection, "debug", MHD_HTTP_OK, data, 5));
 }
 
-int HttpServer::page_dispatcher_previous(MHD_Connection * connection, const string & method, ConnectionData * con_cls) const
+MHD_Result HttpServer::page_dispatcher_previous(MHD_Connection * connection, const string & method, ConnectionData * con_cls) const
 {
 	string	data;
 
@@ -118,7 +114,7 @@ int HttpServer::page_dispatcher_previous(MHD_Connection * connection, const stri
 	return(send_html(connection, "previous", MHD_HTTP_OK, data, 0, "/"));
 }
 
-int HttpServer::page_dispatcher_next(MHD_Connection * connection, const string & method, ConnectionData * con_cls) const
+MHD_Result HttpServer::page_dispatcher_next(MHD_Connection * connection, const string & method, ConnectionData * con_cls) const
 {
 	string	data;
 
@@ -141,7 +137,7 @@ int HttpServer::page_dispatcher_next(MHD_Connection * connection, const string &
 	return(send_html(connection, "next", MHD_HTTP_OK, data, 0, "/"));
 }
 
-int HttpServer::page_dispatcher_stop(MHD_Connection * connection, const string & method, ConnectionData * con_cls) const
+MHD_Result HttpServer::page_dispatcher_stop(MHD_Connection * connection, const string & method, ConnectionData * con_cls) const
 {
 	string	data;
 
@@ -164,7 +160,7 @@ int HttpServer::page_dispatcher_stop(MHD_Connection * connection, const string &
 	return(send_html(connection, "stop", MHD_HTTP_OK, data, 0, "/"));
 }
 
-int HttpServer::page_dispatcher_pause(MHD_Connection * connection, const string & method, ConnectionData * con_cls) const
+MHD_Result HttpServer::page_dispatcher_pause(MHD_Connection * connection, const string & method, ConnectionData * con_cls) const
 {
 	string	data;
 
@@ -187,7 +183,7 @@ int HttpServer::page_dispatcher_pause(MHD_Connection * connection, const string 
 	return(send_html(connection, "pause", MHD_HTTP_OK, data, 0, "/"));
 }
 
-int HttpServer::page_dispatcher_play(MHD_Connection * connection, const string & method, ConnectionData * con_cls) const
+MHD_Result HttpServer::page_dispatcher_play(MHD_Connection * connection, const string & method, ConnectionData * con_cls) const
 {
 	string	data;
 
@@ -210,7 +206,7 @@ int HttpServer::page_dispatcher_play(MHD_Connection * connection, const string &
 	return(send_html(connection, "play", MHD_HTTP_OK, data, 0, "/"));
 }
 
-int HttpServer::page_dispatcher_list(MHD_Connection * connection, const string & method, ConnectionData * con_cls) const
+MHD_Result HttpServer::page_dispatcher_list(MHD_Connection * connection, const string & method, ConnectionData * con_cls) const
 {
 	string	data;
 	int		start;
@@ -292,7 +288,7 @@ int HttpServer::page_dispatcher_list(MHD_Connection * connection, const string &
 	return(send_html(connection, "/", MHD_HTTP_OK, data));
 }
 
-int HttpServer::page_dispatcher_goto(MHD_Connection * connection, const string & method, ConnectionData * con_cls) const
+MHD_Result HttpServer::page_dispatcher_goto(MHD_Connection * connection, const string & method, ConnectionData * con_cls) const
 {
 	string	data;
 	int		value;
@@ -328,9 +324,9 @@ int HttpServer::page_dispatcher_goto(MHD_Connection * connection, const string &
 	return(send_html(connection, "/goto", MHD_HTTP_OK, data, 0, "/"));
 }
 
-int HttpServer::page_dispatcher_stream_http(MHD_Connection * connection, const string & method, ConnectionData * con_cls) const
+MHD_Result HttpServer::page_dispatcher_stream_http(MHD_Connection * connection, const string & method, ConnectionData * con_cls) const
 {
-	int rv;
+	MHD_Result rv;
 
 	if(method != "GET")
 		return(http_error(connection, MHD_HTTP_METHOD_NOT_ALLOWED, string("Method not allowed: ") + method));
@@ -350,9 +346,9 @@ int HttpServer::page_dispatcher_stream_http(MHD_Connection * connection, const s
 	return(rv);
 }
 
-int HttpServer::page_dispatcher_stream_shoutcast(MHD_Connection * connection, const string & method, ConnectionData * con_cls) const
+MHD_Result HttpServer::page_dispatcher_stream_shoutcast(MHD_Connection * connection, const string & method, ConnectionData * con_cls) const
 {
-	int rv;
+	MHD_Result rv;
 
 	if(method != "GET")
 		return(http_error(connection, MHD_HTTP_METHOD_NOT_ALLOWED, string("Method not allowed: ") + method));

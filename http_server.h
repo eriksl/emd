@@ -52,7 +52,7 @@ class HttpServer
 
 		typedef struct
 		{
-			typedef int (HttpServer::*dispatcher_function_t)(MHD_Connection *, const string & method,
+			typedef MHD_Result (HttpServer::*dispatcher_function_t)(MHD_Connection *, const string & method,
 							ConnectionData * con_cls) const;
 			typedef map<string, dispatcher_function_t> map_t;
 
@@ -69,49 +69,49 @@ class HttpServer
 		static string		html_header(const string & title = "", int reload = -1, string reload_url = "");
 		static string		html_footer();
 
-		int					send_html(MHD_Connection * connection, const string & title, int http_code,
+		MHD_Result			send_html(MHD_Connection * connection, const string & title, int http_code,
 									const string & data, int reload = -1, const string & reload_url = "",
 									const string & cookie_id = "", const string & cookie_value = "") const throw(string);
 
-		int					http_error(MHD_Connection * connection, int code,
+		MHD_Result			http_error(MHD_Connection * connection, int code,
 									const string & message) const throw(string);
 
-		static int 			callback_keyvalue_iterator(void * cls, enum MHD_ValueKind kind, const char * key, const char * value);
+		static MHD_Result	callback_keyvalue_iterator(void * cls, enum MHD_ValueKind kind, const char * key, const char * value);
 		KeyValues			get_http_values(struct MHD_Connection * connection, enum MHD_ValueKind kind) const;
 
-		static int			callback_answer_connection(void * object,
+		static MHD_Result	callback_answer_connection(void * object,
 								struct MHD_Connection * connection,
 								const char * url, const char * method, const char * version,
-								const char * upload_data, size_t * upload_data_size,
+								const char * upload_data, unsigned long int *upload_data_size,
 								void ** con_cls);
 
-		int					answer_connection(struct MHD_Connection * connection,
+		MHD_Result			answer_connection(struct MHD_Connection * connection,
 								const string & url, const string & method, const string & version,
 								ConnectionData * con_cls, size_t * upload_data_size, const char * upload_data) const;
 
-		static int			callback_postdata_iterator(void * cls, enum MHD_ValueKind kind,
+		static MHD_Result	callback_postdata_iterator(void * cls, enum MHD_ValueKind kind,
 								const char * key, const char * filename, const char * content_type,
 								const char * transfer_encoding, const char * data, uint64_t off, size_t size);
 
 		static void *		callback_request_completed(void * cls, struct MHD_Connection * connection,
 								void ** con_cls, enum MHD_RequestTerminationCode toe);
 
-		int					send_stream(struct MHD_Connection *, bool shoutcast) const throw(string);
+		MHD_Result			send_stream(struct MHD_Connection *, bool shoutcast) const throw(string);
 
 		static ssize_t		send_stream_callback(void * cls, uint64_t pos, char * buf, size_t max);
 		static void			send_stream_free_callback(void * cls);
 
-		int page_dispatcher_root			(MHD_Connection *, const string & method, ConnectionData * con_cls) const;
-		int page_dispatcher_debug			(MHD_Connection *, const string & method, ConnectionData * con_cls) const;
-		int page_dispatcher_previous		(MHD_Connection *, const string & method, ConnectionData * con_cls) const;
-		int page_dispatcher_next			(MHD_Connection *, const string & method, ConnectionData * con_cls) const;
-		int page_dispatcher_stop			(MHD_Connection *, const string & method, ConnectionData * con_cls) const;
-		int page_dispatcher_pause			(MHD_Connection *, const string & method, ConnectionData * con_cls) const;
-		int page_dispatcher_play			(MHD_Connection *, const string & method, ConnectionData * con_cls) const;
-		int page_dispatcher_list			(MHD_Connection *, const string & method, ConnectionData * con_cls) const;
-		int page_dispatcher_goto			(MHD_Connection *, const string & method, ConnectionData * con_cls) const;
-		int page_dispatcher_stream_http		(MHD_Connection *, const string & method, ConnectionData * con_cls) const;
-		int page_dispatcher_stream_shoutcast(MHD_Connection *, const string & method, ConnectionData * con_cls) const;
+		MHD_Result page_dispatcher_root				(MHD_Connection *, const string & method, ConnectionData * con_cls) const;
+		MHD_Result page_dispatcher_debug			(MHD_Connection *, const string & method, ConnectionData * con_cls) const;
+		MHD_Result page_dispatcher_previous			(MHD_Connection *, const string & method, ConnectionData * con_cls) const;
+		MHD_Result page_dispatcher_next				(MHD_Connection *, const string & method, ConnectionData * con_cls) const;
+		MHD_Result page_dispatcher_stop				(MHD_Connection *, const string & method, ConnectionData * con_cls) const;
+		MHD_Result page_dispatcher_pause			(MHD_Connection *, const string & method, ConnectionData * con_cls) const;
+		MHD_Result page_dispatcher_play				(MHD_Connection *, const string & method, ConnectionData * con_cls) const;
+		MHD_Result page_dispatcher_list				(MHD_Connection *, const string & method, ConnectionData * con_cls) const;
+		MHD_Result page_dispatcher_goto				(MHD_Connection *, const string & method, ConnectionData * con_cls) const;
+		MHD_Result page_dispatcher_stream_http		(MHD_Connection *, const string & method, ConnectionData * con_cls) const;
+		MHD_Result page_dispatcher_stream_shoutcast	(MHD_Connection *, const string & method, ConnectionData * con_cls) const;
 
 	public:
 

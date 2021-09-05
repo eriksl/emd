@@ -52,7 +52,7 @@ HttpServer::HttpServer(EmdState & emd_state_in, int tcp_port, bool multithread_i
 		throw(string("listen"));
 
 	if(multithread)
-		daemon = MHD_start_daemon(MHD_USE_THREAD_PER_CONNECTION | MHD_USE_IPv6 | MHD_USE_DEBUG,
+		daemon = MHD_start_daemon(MHD_USE_THREAD_PER_CONNECTION | MHD_USE_INTERNAL_POLLING_THREAD | MHD_USE_IPv6 | MHD_USE_DEBUG,
 				tcp_port, 0, 0, &HttpServer::callback_answer_connection, this,
 				MHD_OPTION_NOTIFY_COMPLETED, &HttpServer::callback_request_completed, this,
 				MHD_OPTION_LISTEN_SOCKET, fd,
@@ -163,11 +163,11 @@ string HttpServer::html_footer()
 				"</html>\n");
 }
 
-int HttpServer::send_html(MHD_Connection * connection, const string & title, int http_code,
+MHD_Result HttpServer::send_html(MHD_Connection * connection, const string & title, int http_code,
 			const string & message, int reload, const string & reload_url,
 			const string & cookie_id, const string & cookie_value) const throw(string)
 {
-	int						rv;
+	MHD_Result				rv;
 	string					data;
 	struct MHD_Response	*	response;
 	char *					dataptr;
@@ -193,18 +193,18 @@ int HttpServer::send_html(MHD_Connection * connection, const string & title, int
 	return(rv);
 }
 
-int HttpServer::http_error(MHD_Connection * connection, int http_code, const string & message) const throw(string)
+MHD_Result HttpServer::http_error(MHD_Connection * connection, int http_code, const string & message) const throw(string)
 {
 	return(send_html(connection, "ERROR", http_code, string("<p>") + message + "</p>\n"));
 }
 
-int HttpServer::callback_answer_connection(void * void_http_server,
-		struct MHD_Connection * connection,
-		const char * url, const char * method, const char * version,
-		const char * upload_data, size_t * upload_data_size,
-		void ** con_cls)
+MHD_Result HttpServer::callback_answer_connection(void *void_http_server,
+		struct MHD_Connection *connection,
+		const char *url, const char *method, const char *version,
+		const char *upload_data, unsigned long int *upload_data_size,
+		void **con_cls)
 {
-	HttpServer * http_server = (HttpServer *)void_http_server;
+	HttpServer* http_server = (HttpServer *)void_http_server;
 
 	if(*con_cls == 0)
 	{
@@ -233,7 +233,7 @@ int HttpServer::callback_answer_connection(void * void_http_server,
 		url, method, version, *(ConnectionData **)con_cls, upload_data_size, upload_data));
 };
 
-int HttpServer::answer_connection(struct MHD_Connection * connection,
+MHD_Result HttpServer::answer_connection(struct MHD_Connection * connection,
 		const string & url, const string & method, const string &,
 		ConnectionData * con_cls, size_t *, const char *) const
 {
@@ -253,7 +253,7 @@ int HttpServer::answer_connection(struct MHD_Connection * connection,
 	return(http_error(connection, MHD_HTTP_NOT_FOUND, string("URI ") + url + " not found"));
 }
 
-int HttpServer::callback_keyvalue_iterator(void * cls, enum MHD_ValueKind, const char * key, const char * value)
+MHD_Result HttpServer::callback_keyvalue_iterator(void * cls, enum MHD_ValueKind, const char * key, const char * value)
 {
 	KeyValues * rv = (KeyValues *)cls;
 
@@ -271,7 +271,7 @@ HttpServer::KeyValues HttpServer::get_http_values(struct MHD_Connection * connec
 	return(rv);
 }
 
-void * HttpServer::callback_request_completed(void *, struct MHD_Connection *, void ** con_cls, enum MHD_RequestTerminationCode)
+void * HttpServer::callback_request_completed(void *, struct MHD_Connection *, void **con_cls, enum MHD_RequestTerminationCode)
 {
 	if(con_cls && *con_cls)
 	{
@@ -290,7 +290,7 @@ void * HttpServer::callback_request_completed(void *, struct MHD_Connection *, v
 	return(0);
 }
 
-int HttpServer::callback_postdata_iterator(void * con_cls, enum MHD_ValueKind,
+MHD_Result HttpServer::callback_postdata_iterator(void * con_cls, enum MHD_ValueKind,
 		const char * key, const char *, const char *,
 		const char *, const char * data, uint64_t, size_t size)
 {
@@ -302,10 +302,10 @@ int HttpServer::callback_postdata_iterator(void * con_cls, enum MHD_ValueKind,
 	return(MHD_YES);
 }
 
-int HttpServer::send_stream(struct MHD_Connection * connection, bool shoutcast) const throw(string)
+MHD_Result HttpServer::send_stream(struct MHD_Connection * connection, bool shoutcast) const throw(string)
 {
 	struct MHD_Response	*	response;
-	int						rv;
+	MHD_Result				rv;
 
 	StreamingData * streaming_data			= new(StreamingData);
 	streaming_data->emd_state				= &emd_state;

@@ -95,14 +95,14 @@ static void call_notifiers(mp3notifiers & notifiers, mp3meta & current_meta)
 		notify->addparameter("%s", song);
 		notify->addparameter("%t", track);
 
-		//vlog("path = %s\n", path.c_str());
-		//vlog("base = %s\n", base.c_str());
-		//vlog("filename = %s\n", filename.c_str());
+		vlog("path = %s\n", path.c_str());
+		vlog("base = %s\n", base.c_str());
+		vlog("filename = %s\n", filename.c_str());
 
-		//vlog("artist = %s\n", artist.c_str());
-		//vlog("album = %s\n", album.c_str());
-		//vlog("song = %s\n", song.c_str());
-		//vlog("track = %s\n", track.c_str());
+		vlog("artist = %s\n", artist.c_str());
+		vlog("album = %s\n", album.c_str());
+		vlog("song = %s\n", song.c_str());
+		vlog("track = %s\n", track.c_str());
 
 		notify->exec();
 	}
